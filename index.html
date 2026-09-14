@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Dominion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game">
+    <header class="topbar">
+      <div class="brand"><span class="shield">W</span><div><b>WORLD</b><small>DOMINION</small></div></div>
+      <button class="country-head" id="countryHead"><span id="playerFlag">🇵🇱</span><div><small>GRAJ JAKO</small><b id="playerCountry">Polska</b></div><i>⌄</i></button>
+      <div class="resources">
+        <div title="Skarbiec"><span>●</span><b id="money">48.20</b><small>mld $</small><em id="incomeRate">+1.80/mies.</em></div>
+        <div title="Ludność"><span>♟</span><b id="population">37.6</b><small>mln</small><em id="popRate">+0.08%</em></div>
+        <div title="Siła robocza"><span>⚒</span><b id="manpower">642</b><small>tys.</small><em>rezerwa</em></div>
+        <div title="Stabilność"><span>◆</span><b id="stability">82</b><small>%</small><em>stabilność</em></div>
+      </div>
+      <div class="clock"><div><b id="gameDate">1 STY 2025</b><small id="gameTime">08:00</small></div><button class="time-btn" id="pause">Ⅱ</button><button class="time-btn active" data-speed="1">▶</button><button class="time-btn" data-speed="2">▶▶</button><button class="time-btn" data-speed="4">▶▶▶</button></div>
+    </header>
+
+    <nav class="sidebar">
+      <button class="nav active" data-screen="map"><span>⌖</span>MAPA</button>
+      <button class="nav" data-screen="country"><span>♛</span>PAŃSTWO</button>
+      <button class="nav" data-screen="economy"><span>▥</span>GOSPODARKA</button>
+      <button class="nav" data-screen="military"><span>⚔</span>ARMIA</button>
+      <button class="nav" data-screen="diplomacy"><span>♙</span>DYPLOMACJA</button>
+      <button class="nav" data-screen="research"><span>⌬</span>BADANIA</button>
+      <div></div>
+      <button class="nav" id="saveGame"><span>▣</span>ZAPISZ</button>
+    </nav>
+
+    <main class="map-wrap">
+      <div id="map" aria-label="Prawdziwa mapa polityczna świata"></div>
+      <div class="map-loading" id="mapLoading"><span></span><b>Wczytywanie mapy strategicznej…</b><small>Granice państw i regionów administracyjnych</small></div>
+      <div class="map-breadcrumb"><button id="worldView">ŚWIAT</button><span>›</span><b id="mapRegion">POLSKA</b></div>
+      <div class="map-modes"><button class="active" data-mapmode="political">POLITYCZNA</button><button data-mapmode="economy">PKB</button><button data-mapmode="relations">RELACJE</button><button data-mapmode="military">SIŁA</button></div>
+      <div class="map-help" id="mapHelp">Kliknij państwo, aby wejść na mapę jego prowincji</div>
+      <div class="ticker"><b>WYDARZENIA</b><div id="tickerText">Świat wkracza w nowy rok. Globalna sytuacja jest stabilna.</div></div>
+    </main>
+
+    <aside class="panel" id="panel">
+      <div class="panel-top"><div><small id="panelEyebrow">WYBRANE PAŃSTWO</small><h1 id="selectedName">POLSKA</h1></div><button id="panelClose">×</button></div>
+      <div class="country-card"><div class="big-flag" id="selectedFlag">🇵🇱</div><div><small>STOLICA</small><b id="selectedCapital">Warszawa</b></div><div><small>RELACJE</small><b class="good" id="relation">Własne państwo</b></div></div>
+      <div class="stat-grid"><div><small>LUDNOŚĆ</small><b id="selPop">37.6 mln</b></div><div><small>PKB</small><b id="selGdp">0.81 bln</b></div><div><small>SIŁA</small><b id="selPower">72</b></div></div>
+      <div class="panel-tabs"><button class="active" data-tab="provinces">PROWINCJE</button><button data-tab="build">BUDOWA</button><button data-tab="forces">ARMIE</button><button data-tab="diplo">RELACJE</button></div>
+      <div class="tab-page active" id="provincesPage">
+        <div class="section-title">PROWINCJE <span id="provinceCount">16 regionów</span></div>
+        <div class="province-list" id="provinceList"></div>
+      </div>
+      <div class="tab-page" id="buildPage">
+        <div class="section-title">BUDOWA W: <span id="buildProvince">Mazowieckie</span></div>
+        <div class="build-grid" id="buildGrid"></div>
+        <div class="queue-title">KOLEJKA BUDOWY</div><div id="buildQueue" class="queue empty">Brak aktywnych inwestycji</div>
+      </div>
+      <div class="tab-page" id="forcesPage">
+        <div class="section-title">SIŁY ZBROJNE <button id="recruitOpen">+ NOWA ARMIA</button></div>
+        <div id="armyList"></div>
+        <div class="army-actions"><button id="trainArmy">TRENING</button><button id="moveArmy">PRZEMIEŚĆ NA MAPIE</button></div>
+      </div>
+      <div class="tab-page" id="diploPage">
+        <div class="diplomacy-score"><span id="diploFlag">🇵🇱</span><b id="diploValue">100</b><small>opinia dyplomatyczna</small></div>
+        <button class="wide-action" id="improveRelations">🤝 POPRAW RELACJE <small>Koszt: 0.5 mld $</small></button>
+        <button class="wide-action" id="tradeDeal">▥ ZAPROPONUJ HANDEL</button>
+        <button class="wide-action danger" id="declareWar">⚔ WYPOWIEDZ WOJNĘ</button>
+      </div>
+    </aside>
+  </div>
+
+  <dialog id="startDialog"><form method="dialog"><button class="close" value="cancel">×</button><small>NOWA GRA · 1 STYCZNIA 2025</small><h2>WYBIERZ PAŃSTWO</h2><p>Wybierz dowolne państwo świata. Zarządzaj regionami, gospodarką i armią w czasie rzeczywistym.</p><input id="countrySearch" placeholder="Szukaj państwa…" autocomplete="off"><div class="country-grid" id="countryGrid"></div><button class="primary" id="startGame" value="default">ROZPOCZNIJ GRĘ</button></form></dialog>
+  <dialog id="recruitDialog"><form method="dialog"><button class="close" value="cancel">×</button><small>REKRUTACJA</small><h2>UTWÓRZ ARMIĘ</h2><label>Nazwa<input id="armyName" value="2. Armia Lądowa"></label><label>Typ jednostki<select id="armyType"><option>Piechota zmotoryzowana</option><option>Brygada pancerna</option><option>Wojska obrony terytorialnej</option></select></label><label>Liczebność<input id="armySize" type="range" min="1000" max="30000" step="1000" value="8000"><output id="armySizeOut">8 000 żołnierzy</output></label><button class="primary" id="confirmRecruit" value="default">REKRUTUJ · 2.4 MLD $</button></form></dialog>
+  <dialog id="reportDialog"><form method="dialog"><button class="close" value="default">×</button><small>RAPORT PAŃSTWOWY</small><h2 id="reportTitle">POLSKA</h2><div id="reportBody"></div><button class="primary" value="default">ZAMKNIJ</button></form></dialog>
+  <div class="toast" id="toast"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
