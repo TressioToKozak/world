@@ -37,8 +37,10 @@
 
     <main class="map-wrap">
       <div id="map" aria-label="Prawdziwa mapa polityczna świata"></div>
-      <div class="map-loading" id="mapLoading"><span></span><b>Wczytywanie granic państw…</b><small>Natural Earth / OpenStreetMap</small></div>
+      <div class="map-loading" id="mapLoading"><span></span><b>Wczytywanie mapy strategicznej…</b><small>Granice państw i regionów administracyjnych</small></div>
+      <div class="map-breadcrumb"><button id="worldView">ŚWIAT</button><span>›</span><b id="mapRegion">POLSKA</b></div>
       <div class="map-modes"><button class="active" data-mapmode="political">POLITYCZNA</button><button data-mapmode="economy">PKB</button><button data-mapmode="relations">RELACJE</button><button data-mapmode="military">SIŁA</button></div>
+      <div class="map-help" id="mapHelp">Kliknij państwo, aby wejść na mapę jego prowincji</div>
       <div class="ticker"><b>WYDARZENIA</b><div id="tickerText">Świat wkracza w nowy rok. Globalna sytuacja jest stabilna.</div></div>
     </main>
 
@@ -59,7 +61,7 @@
       <div class="tab-page" id="forcesPage">
         <div class="section-title">SIŁY ZBROJNE <button id="recruitOpen">+ NOWA ARMIA</button></div>
         <div id="armyList"></div>
-        <div class="army-actions"><button id="trainArmy">TRENING</button><button id="moveArmy">PRZEMIEŚĆ</button></div>
+        <div class="army-actions"><button id="trainArmy">TRENING</button><button id="moveArmy">PRZEMIEŚĆ NA MAPIE</button></div>
       </div>
       <div class="tab-page" id="diploPage">
         <div class="diplomacy-score"><span id="diploFlag">🇵🇱</span><b id="diploValue">100</b><small>opinia dyplomatyczna</small></div>
