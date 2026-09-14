@@ -1,103 +1,80 @@
 <!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Dominion — strategia globalna</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Dominion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-shell">
+  <div id="game">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="World Dominion">
-        <span class="brand-mark">W</span>
-        <span><strong>WORLD</strong><small>DOMINION</small></span>
-      </a>
-      <div class="nation-chip"><span class="flag" id="playerFlag">🇵🇱</span><div><small>RZECZPOSPOLITA</small><strong id="playerName">Polska</strong></div><span class="chevron">⌄</span></div>
+      <div class="brand"><span class="shield">W</span><div><b>WORLD</b><small>DOMINION</small></div></div>
+      <button class="country-head" id="countryHead"><span id="playerFlag">🇵🇱</span><div><small>GRAJ JAKO</small><b id="playerCountry">Polska</b></div><i>⌄</i></button>
       <div class="resources">
-        <div><span class="icon gold">●</span><p><b id="treasury">48.2</b> mld<small>+1.8 / mies.</small></p></div>
-        <div><span class="icon people">♟</span><p><b>37.6</b> mln<small>+0.12%</small></p></div>
-        <div><span class="icon science">◆</span><p><b>126</b><small>+4.2 / mies.</small></p></div>
-        <div><span class="icon stability">●</span><p><b id="stability">82%</b><small>stabilność</small></p></div>
+        <div title="Skarbiec"><span>●</span><b id="money">48.20</b><small>mld $</small><em id="incomeRate">+1.80/mies.</em></div>
+        <div title="Ludność"><span>♟</span><b id="population">37.6</b><small>mln</small><em id="popRate">+0.08%</em></div>
+        <div title="Siła robocza"><span>⚒</span><b id="manpower">642</b><small>tys.</small><em>rezerwa</em></div>
+        <div title="Stabilność"><span>◆</span><b id="stability">82</b><small>%</small><em>stabilność</em></div>
       </div>
-      <div class="date-control">
-        <div><b id="dateLabel">1 STYCZNIA 2025</b><small id="turnLabel">TURA 1</small></div>
-        <button class="speed" data-speed="1">▶</button><button class="speed active" data-speed="2">▶▶</button><button class="speed" data-speed="3">▶▶▶</button>
-        <button class="end-turn" id="endTurn">NASTĘPNA TURA <span>↵</span></button>
-      </div>
+      <div class="clock"><div><b id="gameDate">1 STY 2025</b><small id="gameTime">08:00</small></div><button class="time-btn" id="pause">Ⅱ</button><button class="time-btn active" data-speed="1">▶</button><button class="time-btn" data-speed="2">▶▶</button><button class="time-btn" data-speed="4">▶▶▶</button></div>
     </header>
 
-    <aside class="left-nav">
-      <button class="nav-btn active" data-tab="map"><span>⌖</span>MAPA</button>
-      <button class="nav-btn" data-tab="country"><span>♛</span>PAŃSTWO</button>
-      <button class="nav-btn" data-tab="economy"><span>▥</span>GOSPODARKA</button>
-      <button class="nav-btn" data-tab="army"><span>⚔</span>ARMIA</button>
-      <button class="nav-btn" data-tab="diplomacy"><span>♙</span>DYPLOMACJA</button>
-      <button class="nav-btn" data-tab="tech"><span>⌬</span>TECHNOLOGIA</button>
-      <div class="nav-spacer"></div>
-      <button class="nav-btn"><span>⚙</span>USTAWIENIA</button>
-    </aside>
+    <nav class="sidebar">
+      <button class="nav active" data-screen="map"><span>⌖</span>MAPA</button>
+      <button class="nav" data-screen="country"><span>♛</span>PAŃSTWO</button>
+      <button class="nav" data-screen="economy"><span>▥</span>GOSPODARKA</button>
+      <button class="nav" data-screen="military"><span>⚔</span>ARMIA</button>
+      <button class="nav" data-screen="diplomacy"><span>♙</span>DYPLOMACJA</button>
+      <button class="nav" data-screen="research"><span>⌬</span>BADANIA</button>
+      <div></div>
+      <button class="nav" id="saveGame"><span>▣</span>ZAPISZ</button>
+    </nav>
 
-    <main class="map-area">
-      <div class="map-tools">
-        <button class="tool active" data-mode="political">POLITYCZNA</button><button class="tool" data-mode="terrain">TEREN</button><button class="tool" data-mode="economy">GOSPODARKA</button><button class="tool" data-mode="relations">RELACJE</button>
-      </div>
-      <div class="zoom-tools"><button id="zoomIn">+</button><button id="zoomOut">−</button></div>
-      <div class="world" id="world">
-        <svg viewBox="0 0 1200 650" role="img" aria-label="Interaktywna mapa polityczna świata">
-          <defs><filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-opacity=".32"/></filter></defs>
-          <g class="graticule"><path d="M0 110H1200M0 220H1200M0 330H1200M0 440H1200M0 550H1200M200 0V650M400 0V650M600 0V650M800 0V650M1000 0V650"/></g>
-          <g class="countries" filter="url(#shadow)">
-            <path class="country canada" data-country="Kanada" data-flag="🇨🇦" data-pop="39.1" data-gdp="2.14" d="M94 112l81-49 133 11 63 48-36 51-64 13-37 56-97-25-68-55z"/>
-            <path class="country usa" data-country="Stany Zjednoczone" data-flag="🇺🇸" data-pop="334.9" data-gdp="27.36" d="M76 227l59-12 99 29 38-55 68-12 28 39-72 69-94 30-101-34z"/>
-            <path class="country mexico" data-country="Meksyk" data-flag="🇲🇽" data-pop="128.5" data-gdp="1.79" d="M130 293l71 26 66-23 26 37-36 43-52-17-25-34-44-5z"/>
-            <path class="country brazil" data-country="Brazylia" data-flag="🇧🇷" data-pop="203.1" data-gdp="2.17" d="M284 365l87-24 65 41 5 89-63 102-59-42-16-80-49-40z"/>
-            <path class="country argentina" data-country="Argentyna" data-flag="🇦🇷" data-pop="46.2" data-gdp="0.64" d="M319 527l57 48-27 64-31-34z"/>
-            <path class="country uk" data-country="Wielka Brytania" data-flag="🇬🇧" data-pop="68.3" data-gdp="3.34" d="M500 180l20-38 24 19-7 47z"/>
-            <path class="country eu" data-country="Francja" data-flag="🇫🇷" data-pop="68.2" data-gdp="3.03" d="M511 221l52-25 46 25-16 58-56 14-32-35z"/>
-            <path class="country poland selected" data-country="Polska" data-flag="🇵🇱" data-pop="37.6" data-gdp="0.81" d="M603 189l52-10 33 31-14 43-60-1-23-34z"/>
-            <path class="country russia" data-country="Rosja" data-flag="🇷🇺" data-pop="143.8" data-gdp="2.02" d="M663 114l105-48 176 11 155 72-31 72-107-18-79 44-93-13-80-45-50-15z"/>
-            <path class="country china" data-country="Chiny" data-flag="🇨🇳" data-pop="1410" data-gdp="17.79" d="M786 259l97-25 89 39-5 86-80 45-81-37-45-65z"/>
-            <path class="country india" data-country="Indie" data-flag="🇮🇳" data-pop="1428" data-gdp="3.57" d="M748 327l65 40 25 64-54 61-39-78-37-40z"/>
-            <path class="country japan" data-country="Japonia" data-flag="🇯🇵" data-pop="124.5" data-gdp="4.21" d="M1011 281l18-30 13 12-11 38-15 35-14-9z"/>
-            <path class="country africa" data-country="Nigeria" data-flag="🇳🇬" data-pop="223.8" data-gdp="0.36" d="M538 308l101-9 77 61-25 130-71 90-74-55-35-113z"/>
-            <path class="country australia" data-country="Australia" data-flag="🇦🇺" data-pop="26.6" data-gdp="1.72" d="M929 457l104-41 90 51-8 96-105 40-91-60z"/>
-          </g>
-          <g class="borders"><path d="M135 215l13 65M202 244l-2 68M304 194l-11 70M347 374l-23 157M568 206l-4 70M629 183l5 68M813 261l-7 104M887 241l-4 161M612 302l8 277M991 453l19 147"/></g>
-          <g class="labels">
-            <text x="215" y="145">KANADA</text><text x="200" y="261">USA</text><text x="190" y="337">MEKSYK</text><text x="347" y="431">BRAZYLIA</text><text x="337" y="586">ARGENTYNA</text>
-            <text x="508" y="174">UK</text><text x="537" y="246">FRANCJA</text><text x="614" y="219">POLSKA</text><text x="831" y="157">ROSJA</text><text x="853" y="315">CHINY</text><text x="752" y="403">INDIE</text><text x="991" y="299">JAPONIA</text><text x="582" y="429">AFRYKA</text><text x="986" y="514">AUSTRALIA</text>
-          </g>
-          <g id="armyTokens"><g class="army-token" transform="translate(632 202)"><circle r="18"/><text y="5">⚔</text><rect x="-22" y="18" width="44" height="17" rx="4"/><text class="count" y="31">12.4K</text></g></g>
-        </svg>
-      </div>
-      <div class="map-legend"><span><i class="owned"></i>Twoje terytorium</span><span><i class="ally"></i>Sojusznik</span><span><i class="neutral"></i>Neutralny</span><span><i class="hostile"></i>Wrogi</span></div>
-      <div class="news-ticker"><b>WIADOMOŚCI</b><div><span>●</span> Niemcy proponują nową umowę handlową</div><div><span>●</span> Wzrost napięcia na Bliskim Wschodzie</div></div>
+    <main class="map-wrap">
+      <div id="map" aria-label="Prawdziwa mapa polityczna świata"></div>
+      <div class="map-loading" id="mapLoading"><span></span><b>Wczytywanie granic państw…</b><small>Natural Earth / OpenStreetMap</small></div>
+      <div class="map-modes"><button class="active" data-mapmode="political">POLITYCZNA</button><button data-mapmode="economy">PKB</button><button data-mapmode="relations">RELACJE</button><button data-mapmode="military">SIŁA</button></div>
+      <div class="ticker"><b>WYDARZENIA</b><div id="tickerText">Świat wkracza w nowy rok. Globalna sytuacja jest stabilna.</div></div>
     </main>
 
-    <aside class="province-panel">
-      <div class="panel-header"><div><small>WYBRANA PROWINCJA</small><h1 id="provinceName">MAZOWSZE</h1></div><button id="closePanel">×</button></div>
-      <div class="province-hero"><div class="skyline"></div><div class="hero-stats"><div><small>WŁAŚCICIEL</small><b><span id="ownerFlag">🇵🇱</span> <span id="ownerName">Polska</span></b></div><div><small>STOLICA</small><b id="capitalName">Warszawa</b></div></div></div>
-      <div class="quick-stats"><div><small>POPULACJA</small><b id="provPop">5.5 mln</b><em>+0.08%</em></div><div><small>ROZWÓJ</small><b id="development">72</b><em class="blue">wysoki</em></div><div><small>DOCHÓD</small><b id="income">+2.4 mld</b><em>/ mies.</em></div></div>
-      <div class="tabs"><button class="active" data-panel="overview">PRZEGLĄD</button><button data-panel="buildings">BUDYNKI</button><button data-panel="army">ARMIA</button></div>
-      <section class="panel-content" id="overviewPanel">
-        <h3>INFRASTRUKTURA <span>6 / 8</span></h3>
-        <div class="infrastructure"><button class="building built">🏙<small>Metropolia</small><b>POZ. 3</b></button><button class="building built">🏭<small>Fabryka</small><b>POZ. 2</b></button><button class="building">⚡<small>Elektrownia</small><b>POZ. 1</b></button><button class="building empty" data-action="build">＋<small>Wolne miejsce</small></button></div>
-        <h3>ARMIE W PROWINCJI <button class="link" id="newArmyTop">+ UTWÓRZ</button></h3>
-        <article class="army-card"><div class="unit-icon">⚔</div><div><strong>1. Armia Lądowa</strong><small>Gotowość bojowa: <em>92%</em></small></div><b>12 400</b><button>›</button></article>
-        <div class="actions"><button id="buildBtn"><span>▣</span>BUDUJ<small>Rozwijaj prowincję</small></button><button id="recruitBtn"><span>⚔</span>REKRUTUJ<small>Stwórz nową armię</small></button></div>
-      </section>
+    <aside class="panel" id="panel">
+      <div class="panel-top"><div><small id="panelEyebrow">WYBRANE PAŃSTWO</small><h1 id="selectedName">POLSKA</h1></div><button id="panelClose">×</button></div>
+      <div class="country-card"><div class="big-flag" id="selectedFlag">🇵🇱</div><div><small>STOLICA</small><b id="selectedCapital">Warszawa</b></div><div><small>RELACJE</small><b class="good" id="relation">Własne państwo</b></div></div>
+      <div class="stat-grid"><div><small>LUDNOŚĆ</small><b id="selPop">37.6 mln</b></div><div><small>PKB</small><b id="selGdp">0.81 bln</b></div><div><small>SIŁA</small><b id="selPower">72</b></div></div>
+      <div class="panel-tabs"><button class="active" data-tab="provinces">PROWINCJE</button><button data-tab="build">BUDOWA</button><button data-tab="forces">ARMIE</button><button data-tab="diplo">RELACJE</button></div>
+      <div class="tab-page active" id="provincesPage">
+        <div class="section-title">PROWINCJE <span id="provinceCount">16 regionów</span></div>
+        <div class="province-list" id="provinceList"></div>
+      </div>
+      <div class="tab-page" id="buildPage">
+        <div class="section-title">BUDOWA W: <span id="buildProvince">Mazowieckie</span></div>
+        <div class="build-grid" id="buildGrid"></div>
+        <div class="queue-title">KOLEJKA BUDOWY</div><div id="buildQueue" class="queue empty">Brak aktywnych inwestycji</div>
+      </div>
+      <div class="tab-page" id="forcesPage">
+        <div class="section-title">SIŁY ZBROJNE <button id="recruitOpen">+ NOWA ARMIA</button></div>
+        <div id="armyList"></div>
+        <div class="army-actions"><button id="trainArmy">TRENING</button><button id="moveArmy">PRZEMIEŚĆ</button></div>
+      </div>
+      <div class="tab-page" id="diploPage">
+        <div class="diplomacy-score"><span id="diploFlag">🇵🇱</span><b id="diploValue">100</b><small>opinia dyplomatyczna</small></div>
+        <button class="wide-action" id="improveRelations">🤝 POPRAW RELACJE <small>Koszt: 0.5 mld $</small></button>
+        <button class="wide-action" id="tradeDeal">▥ ZAPROPONUJ HANDEL</button>
+        <button class="wide-action danger" id="declareWar">⚔ WYPOWIEDZ WOJNĘ</button>
+      </div>
     </aside>
   </div>
 
-  <dialog id="nationDialog">
-    <form method="dialog"><button class="dialog-close" value="cancel">×</button><small>NOWA KAMPANIA</small><h2>Wybierz państwo</h2><p>Zacznij pisać współczesną historię. Każdy kraj ma własną gospodarkę, ludność i pozycję strategiczną.</p><div class="nation-grid" id="nationGrid"></div><button class="primary" id="startCampaign" value="default">ROZPOCZNIJ KAMPANIĘ</button></form>
-  </dialog>
-  <dialog id="actionDialog"><form method="dialog"><button class="dialog-close" value="cancel">×</button><small id="actionEyebrow">ROZWÓJ PROWINCJI</small><h2 id="actionTitle">Wybierz budynek</h2><div class="action-options" id="actionOptions"></div><button class="primary" id="confirmAction" value="default">POTWIERDŹ</button></form></dialog>
+  <dialog id="startDialog"><form method="dialog"><button class="close" value="cancel">×</button><small>NOWA GRA · 1 STYCZNIA 2025</small><h2>WYBIERZ PAŃSTWO</h2><p>Wybierz dowolne państwo świata. Zarządzaj regionami, gospodarką i armią w czasie rzeczywistym.</p><input id="countrySearch" placeholder="Szukaj państwa…" autocomplete="off"><div class="country-grid" id="countryGrid"></div><button class="primary" id="startGame" value="default">ROZPOCZNIJ GRĘ</button></form></dialog>
+  <dialog id="recruitDialog"><form method="dialog"><button class="close" value="cancel">×</button><small>REKRUTACJA</small><h2>UTWÓRZ ARMIĘ</h2><label>Nazwa<input id="armyName" value="2. Armia Lądowa"></label><label>Typ jednostki<select id="armyType"><option>Piechota zmotoryzowana</option><option>Brygada pancerna</option><option>Wojska obrony terytorialnej</option></select></label><label>Liczebność<input id="armySize" type="range" min="1000" max="30000" step="1000" value="8000"><output id="armySizeOut">8 000 żołnierzy</output></label><button class="primary" id="confirmRecruit" value="default">REKRUTUJ · 2.4 MLD $</button></form></dialog>
+  <dialog id="reportDialog"><form method="dialog"><button class="close" value="default">×</button><small>RAPORT PAŃSTWOWY</small><h2 id="reportTitle">POLSKA</h2><div id="reportBody"></div><button class="primary" value="default">ZAMKNIJ</button></form></dialog>
   <div class="toast" id="toast"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
